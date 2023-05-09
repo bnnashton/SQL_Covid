@@ -34,17 +34,6 @@ GROUP BY Location, Population
 ORDER BY 'Total Deaths Proportion' DESC
 ;
 
--- RESULTS BY CONTINENT
-
-/*SELECT location, MAX(total_deaths) as 'Total Death Count'
-FROM Portfolio_Project..deaths
-WHERE continent IS NULL
---WHERE location LIKE %states%
-GROUP BY location
-ORDER BY 'Total Death Count' DESC
-;
-*/
-
 SELECT continent, MAX(cast(total_deaths as int)) as 'Total Death Count'
 FROM Portfolio_Project..deaths
 WHERE continent IS NOT NULL
@@ -130,20 +119,7 @@ JOIN Portfolio_Project..vaccinations as v
 WHERE d.continent IS NOT NULL
 --ORDER BY d.continent, d.location
 
-SELECT *, (Rolling_Vacc_Count/population)*100
+SELECT *, (Rolling_Vacc_Count/population)*100 as Rolling_Vacc_Pct
 FROM #PercentPopulationVaccinated
 ;
 
---Create View
-
-CREATE VIEW PercentPopulationVaccinated as
-SELECT d.continent, d.location, d.date, d.population, cast(v.new_vaccinations as bigint) as New_Vacc,
-SUM(cast(v.new_vaccinations as bigint)) OVER (Partition by d.Location ORDER BY d.location, d.date) as Rolling_Vacc_Count
---,('Rolling_Vacc_Count'/population) * 100 as 'Vacc. Count by Pop.'
-FROM Portfolio_Project..deaths as d
-JOIN Portfolio_Project..vaccinations as v
-	ON d.location = v.location
-	AND d.date=v.date
-WHERE d.continent IS NOT NULL
---ORDER BY d.continent, d.location
-;
